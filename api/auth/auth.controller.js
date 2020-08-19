@@ -1,28 +1,35 @@
 const bcrypt = require('bcrypt');
 const userModel = require('../user/user.model');
-// const { sault } = require('../../config');
-// const { creatToken } = require('../../services/auth.services');
-// const { SendVerificationMail } = require('../../services/email.sender');
+const { sault } = require('../config');
+const { creatToken } = require('../services/auth.services');
+const { SendVerificationMail } = require('../services/email.sender');
 // const { prepareUserResponse } = require('../../helpers/helpers');
 
 class AuthController {
   async registerUser(req, res) {
     try {
-      const { email, password, name, confimrPassword} = req.body;
-      if (password !== confimrPassword) {
+      const { email, password, name, confirmPassword } = req.body;
+
+      if (password !== confirmPassword) {
         return res.status(401).send({ message: 'Passwords do not match' });
       }
       const userEmail = await userModel.findOne({ email });
       if (userEmail) {
-        return res.status(409).send({ message: 'User with such email already exists' });
-      };
+        return res
+          .status(409)
+          .send({ message: 'User with such email already exists' });
+      }
       const userName = await userModel.findOne({ name });
       if (userName) {
-        return res.status(409).send({ message: 'User with such name already exists' });
-      };
+        return res
+          .status(409)
+          .send({ message: 'User with such name already exists' });
+      }
+
       const hashPassword = await bcrypt.hash(password, sault);
-  
-      const userData = { ...req.body, password: hashPassword};
+
+      const userData = { ...req.body, password: hashPassword };
+
       const user = await userModel.create(userData);
       if (!user) {
         return res.status(400).send({ message: 'User not creat' });
@@ -34,8 +41,8 @@ class AuthController {
 
       return res.status(201).send({
         email: user.email,
-        subscription: user.subscription,
-        avatarURL,
+        name: user.name,
+        status: user.status,
       });
     } catch (error) {
       res.status(500).send('Server error');

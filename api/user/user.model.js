@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const { Schema } = require('mongoose');
+// const { sault } = require('../config');
+
 
 const userSchema = new Schema({
   email: { type: String, required: true, unique: true },
@@ -27,25 +29,37 @@ userSchema.static('updateUser', async function (id, updateParams) {
   return user.save();
 });
 
-// userSchema.static('findByVerificationToken', async function (
-//   verificationToken,
-// ) {
-//   return this.findOne({
-//     verificationToken,
-//   });
-// });
+userSchema.static('findByVerificationToken', async function (
+  verificationToken,
+) {
+  return this.findOne({
+    verificationToken,
+  });
+});
 
-// userSchema.static('verifyUser', async function (id) {
-//   return this.findByIdAndUpdate(
-//     id,
-//     {
-//       status: 'Verified',
-//       verificationToken: null,
-//     },
-//     {
-//       new: true,
-//     },
-//   );
+userSchema.static('verifyUser', async function (id) {
+  return this.findByIdAndUpdate(
+    id,
+    {
+      status: 'Verified',
+      verificationToken: null,
+    },
+    {
+      new: true,
+    },
+  );
+});
+
+// userSchema.pre("save", async function(next) {
+//   if (!this.isNew) {
+//     return next();
+//   }
+
+//   if (this.password) {
+//     this.password = await bcrypt.hash(this.password, sault);
+//   }
+
+//   return next();
 // });
 
 const userModel = mongoose.model('User', userSchema);

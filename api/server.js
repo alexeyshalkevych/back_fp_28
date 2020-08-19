@@ -3,7 +3,7 @@ require('dotenv').config({ path: path.join(__dirname, '.env') });
 const express = require('express');
 const mongoose = require('mongoose');
 const { PORT, DB_URI } = process.env;
-
+const {authRouter} = require('./auth/auth.router');
 
 exports.AuthServer = class {
   constructor() {
@@ -13,7 +13,7 @@ exports.AuthServer = class {
     this.initApp();
     await this.initDbConnection();
     this.initMiddleware();
-    this.initRouter();
+    this.initRoutes();
     this.initErrorHandler();
     this.startListener();
   }
@@ -33,8 +33,8 @@ exports.AuthServer = class {
     this.app.use(express.json());
   }
 
-  initRouter() {
-    // this.app.use(authRouter);
+  initRoutes() {
+    this.app.use("/auth", authRouter);
   }
 
   initErrorHandler() {
