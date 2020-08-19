@@ -20,6 +20,7 @@
     "@sendgrid/mail": "^7.2.2",
     "audit": "0.0.6",
     "avatar-builder": "^1.0.1",
+    "axios": "^0.19.2",
     "bcrypt": "^5.0.0",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",

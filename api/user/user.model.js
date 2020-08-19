@@ -2,10 +2,9 @@ const mongoose = require('mongoose');
 const { Schema } = require('mongoose');
 // const { sault } = require('../config');
 
-
 const userSchema = new Schema({
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+  password: { type: String, required: false },
   name: { type: String, required: true, unique: true },
   token: { type: String, required: false },
   status: {
@@ -27,6 +26,18 @@ userSchema.static('updateUser', async function (id, updateParams) {
   });
 
   return user.save();
+});
+
+userSchema.static('initUserFromGoogle', async function (email, name, googleId) {
+  const user = await this.findOne({ googleId });
+
+  if (user) return user;
+
+  return new this({
+    email,
+    name: name.replace(/\s/gim, '_').toLowerCase(),
+    googleId,
+  });
 });
 
 userSchema.static('findByVerificationToken', async function (

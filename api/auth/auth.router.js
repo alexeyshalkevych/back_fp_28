@@ -9,5 +9,6 @@ router.post('/register', authController.registerUser);
 router.post('/login', authController.loginUser);
 router.post('/logout', tokenMiddleware, authController.logoutUser);
 router.get('/verify/:verificationToken', authController.verifyEmail);
+router.post('/google', authController.googleOAuth);
 
 exports.authRouter = router;

@@ -1,7 +1,10 @@
 const bcrypt = require('bcrypt');
 const userModel = require('../user/user.model');
 const { sault } = require('../config');
-const { creatToken } = require('../services/auth.services');
+const {
+  creatToken,
+  getUserInfoFromGoogle,
+} = require('../services/auth.services');
 const { SendVerificationMail } = require('../services/email.sender');
 
 class AuthController {
@@ -75,6 +78,40 @@ class AuthController {
       });
     } catch (error) {
       res.status(500).send('Server error');
+    }
+  }
+
+  async googleOAuth(req, res) {
+    try {
+      const { accessToken } = req.body;
+
+      const userInfoResposne = await getUserInfoFromGoogle(accessToken);
+
+      const { email, sub, name } = userInfoResposne;
+
+      const userEmail = await userModel.findOne({ email });
+
+      if (userEmail) {
+        return res
+          .status(409)
+          .send({ message: 'User with such email already exists' });
+      }
+
+      const user = await userModel.initUserFromGoogle(email, name, sub);
+
+      const newToken = await creatToken(user._id);
+
+      user.token = newToken;
+      user.status = 'Verified';
+
+      await user.save();
+
+      return res.status(201).json({
+        token: newToken,
+        user,
+      });
+    } catch (error) {
+      res.status(500).send(error.message);
     }
   }
 
