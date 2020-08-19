@@ -2,8 +2,9 @@ const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 const express = require('express');
 const mongoose = require('mongoose');
+const cors = require('cors');
 const { PORT, DB_URI } = process.env;
-const {authRouter} = require('./auth/auth.router');
+const { authRouter } = require('./auth/auth.router');
 
 exports.AuthServer = class {
   constructor() {
@@ -31,10 +32,11 @@ exports.AuthServer = class {
 
   initMiddleware() {
     this.app.use(express.json());
+    this.app.use(cors({ origin: 'http://localhost:3000' }));
   }
 
   initRoutes() {
-    this.app.use("/auth", authRouter);
+    this.app.use('/auth', authRouter);
   }
 
   initErrorHandler() {
