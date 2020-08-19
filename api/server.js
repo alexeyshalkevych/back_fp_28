@@ -20,7 +20,7 @@ exports.AuthServer = class {
     await this.initDbConnection();
     this.initMiddleware();
     this.initRouter();
-    this.initErrorHandler();
+    // this.initErrorHandler();
     this.startListener();
   }
   initApp() {
@@ -40,7 +40,7 @@ exports.AuthServer = class {
   }
 
   initRouter() {
-    // this.app.use('/', route);
+    this.app.use('/', route);
   }
 
   initErrorHandler() {

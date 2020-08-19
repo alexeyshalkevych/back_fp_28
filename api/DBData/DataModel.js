@@ -2,10 +2,10 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema
 
 const DataShema = new Schema({
-    Transaction: {
-        type: Date,
-        required: true,
-    },
+    // Transaction: {
+    //     type: String,
+    //     required: true,
+    // },
     type: {
         type: String,
         required: true,
@@ -16,22 +16,25 @@ const DataShema = new Schema({
     },
     comment: {
         type: String,
+        required: false,
+
     },
     sum: {
         type: Number,
         required: true,
     },
-    balans: {
+    balance: {
         type: Number,
         required: true,
     },
-    owner: {
-        type: {
-            type: Schema.Types.ObjectId,
-            ref: 'user'
-        },
-        // required: true,
+    userOwner: {
+        type: Schema.Types.ObjectId,
+        ref: 'userModel',
+        required: true
     },
+
 });
 
-module.exports = mongoose.model('Transaction', DataShema);
+const transactionModel = mongoose.model('transactionData', DataShema);
+
+module.exports = transactionModel

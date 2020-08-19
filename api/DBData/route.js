@@ -6,7 +6,7 @@ const {
 
 const route = express.Router()
 
-route.get('/', getTransaction)
-route.post('/', postTransaction)
+route.get('/get', getTransaction)
+route.post('/post', postTransaction)
 
 module.exports = route
