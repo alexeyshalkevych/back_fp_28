@@ -1,13 +1,17 @@
 const DataModel = require('./DataModel');
+// const userModel = require('')
 
 async function getTransaction(req, res, next) {
     try {
-        
+        const {userId} = req.body
+        const user = await DataModel.findById(
+userId).populate('transaction')
     } catch (error) {
         console.log(error);
         
     }
 }
+
 
 async function postTransaction(req, res, next) {
   try {
@@ -25,7 +29,7 @@ async function postTransaction(req, res, next) {
     const updatedUser = await userModel.findByIdAndUpdate(
       id,
       {
-        $push: { data: newTransaction._id },
+        $push: { transaction: newTransaction._id },
       },
       { new: true },
     );
@@ -47,11 +51,11 @@ async function deleteTransaction(req, res, next) {
       .findByIdAndUpdate(
         userId,
         {
-          $pull: { data: transactionId },
+          $pull: { transaction: transactionId },
         },
         { new: true },
       )
-      .populate('data');
+      .populate('transaction');
     return res.status(204).send(updatedUser);
   } catch (error) {
     next(error);
