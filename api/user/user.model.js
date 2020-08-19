@@ -2,12 +2,19 @@ const mongoose = require('mongoose');
 const { Schema } = require('mongoose');
 // const { sault } = require('../config');
 
-
 const userSchema = new Schema({
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+  password: { type: String, required: false },
   name: { type: String, required: true, unique: true },
   token: { type: String, required: false },
+  transaction: [
+    {
+      type: {
+        type: Schema.Types.ObjectId,
+        ref: 'transaction',
+      },
+    },
+  ],
   status: {
     type: String,
     required: true,
