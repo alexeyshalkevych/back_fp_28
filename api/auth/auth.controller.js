@@ -3,7 +3,8 @@ const userModel = require('../user/user.model');
 const { sault } = require('../config');
 const { creatToken } = require('../services/auth.services');
 const { SendVerificationMail } = require('../services/email.sender');
-// const { prepareUserResponse } = require('../../helpers/helpers');
+
+
 
 class AuthController {
   async registerUser(req, res) {
@@ -43,6 +44,7 @@ class AuthController {
         email: user.email,
         name: user.name,
         status: user.status,
+        verificationToken: user.verificationToken
       });
     } catch (error) {
       res.status(500).send('Server error');
@@ -82,6 +84,7 @@ class AuthController {
     try {
       const { user } = req;
       await userModel.findByIdAndUpdate(user._id, { token: null });
+       // res.redirect('Login_page') ;
       return res.status(204).send();
     } catch (error) {
       res.status(500).send('Server error');
@@ -95,13 +98,14 @@ class AuthController {
       const userToVerify = await userModel.findByVerificationToken(
         verificationToken,
       );
+  
       if (!userToVerify) {
-        throw new Error('User not found');
+        return console.log("test")
       }
 
-      await userModel.verifyUser(userToVerify._id);
-      res.redirect('http://localhost:3000');
-      return res.status(200);
+      await userModel.verifyUser(userToVerify._id);    
+      // res.redirect('Login_page') ;
+      return res.status(200).send("Your mail successfully verified");
     } catch (error) {
       res.status(500).send('Server error');
     }
