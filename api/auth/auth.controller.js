@@ -4,8 +4,6 @@ const { sault } = require('../config');
 const { creatToken } = require('../services/auth.services');
 const { SendVerificationMail } = require('../services/email.sender');
 
-
-
 class AuthController {
   async registerUser(req, res) {
     try {
@@ -44,7 +42,7 @@ class AuthController {
         email: user.email,
         name: user.name,
         status: user.status,
-        verificationToken: user.verificationToken
+        verificationToken: user.verificationToken,
       });
     } catch (error) {
       res.status(500).send('Server error');
@@ -72,7 +70,6 @@ class AuthController {
       });
       res.status(200).json({
         email: userWithToken.email,
-        subscription: userWithToken.subscription,
         token: newToken,
       });
     } catch (error) {
@@ -84,7 +81,6 @@ class AuthController {
     try {
       const { user } = req;
       await userModel.findByIdAndUpdate(user._id, { token: null });
-       // res.redirect('Login_page') ;
       return res.status(204).send();
     } catch (error) {
       res.status(500).send('Server error');
@@ -94,18 +90,17 @@ class AuthController {
   async verifyEmail(req, res) {
     try {
       const { verificationToken } = req.params;
-
       const userToVerify = await userModel.findByVerificationToken(
         verificationToken,
       );
-  
+
       if (!userToVerify) {
-        return console.log("test")
+        return console.log('test');
       }
 
-      await userModel.verifyUser(userToVerify._id);    
+      await userModel.verifyUser(userToVerify._id);
       // res.redirect('Login_page') ;
-      return res.status(200).send("Your mail successfully verified");
+      return res.status(200).send('Your mail successfully verified');
     } catch (error) {
       res.status(500).send('Server error');
     }
