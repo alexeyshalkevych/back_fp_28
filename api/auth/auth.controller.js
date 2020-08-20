@@ -118,7 +118,7 @@ class AuthController {
 
   async facebookOAuth(req, res) {
     try {
-      const { accessToken } = req.query;
+      const { accessToken } = req.body;
 
       const userInfoResposne = await getUserInfoFromFacebook(accessToken);
 
@@ -147,6 +147,37 @@ class AuthController {
       });
     } catch (error) {
       return res.status(500).send('Server error');
+    }
+  }
+
+  async logoutUser(req, res) {
+    try {
+      const { user } = req;
+      await userModel.findByIdAndUpdate(user._id, { token: null });
+      // res.redirect('Login_page') ;
+      return res.status(204).send();
+    } catch (error) {
+      res.status(500).send('Server error');
+    }
+  }
+
+  async verifyEmail(req, res) {
+    try {
+      const { verificationToken } = req.params;
+
+      const userToVerify = await userModel.findByVerificationToken(
+        verificationToken,
+      );
+
+      if (!userToVerify) {
+        return console.log('test');
+      }
+
+      await userModel.verifyUser(userToVerify._id);
+      // res.redirect('Login_page') ;
+      return res.status(200).send('Your mail successfully verified');
+    } catch (error) {
+      res.status(500).send('Server error');
     }
   }
 

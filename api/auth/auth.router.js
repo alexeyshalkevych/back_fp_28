@@ -7,8 +7,8 @@ const { tokenMiddleware } = require('../middleware/auth.middleware');
 // authRouter.get('/current', tokenMiddleware, AuthController.getCurrentUser);
 router.post('/register', authController.registerUser);
 router.post('/login', authController.loginUser);
-// router.post('/logout', tokenMiddleware, authController.logoutUser);
-// router.get('/verify/:verificationToken', authController.verifyEmail);
+router.post('/logout', tokenMiddleware, authController.logoutUser);
+router.get('/verify/:verificationToken', authController.verifyEmail);
 router.post('/google', authController.googleOAuth);
 router.post('/facebook', authController.facebookOAuth);
 
