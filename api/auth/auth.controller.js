@@ -4,6 +4,7 @@ const { sault } = require('../config');
 const {
   creatToken,
   getUserInfoFromGoogle,
+  getUserInfoFromFacebook,
 } = require('../services/auth.services');
 const { SendVerificationMail } = require('../services/email.sender');
 
@@ -111,38 +112,41 @@ class AuthController {
         user,
       });
     } catch (error) {
-      res.status(500).send(error.message);
+      return res.status(500).send('Server error');
     }
   }
 
-  async logoutUser(req, res) {
+  async facebookOAuth(req, res) {
     try {
-      const { user } = req;
-      await userModel.findByIdAndUpdate(user._id, { token: null });
-      // res.redirect('Login_page') ;
-      return res.status(204).send();
-    } catch (error) {
-      res.status(500).send('Server error');
-    }
-  }
+      const { accessToken } = req.query;
 
-  async verifyEmail(req, res) {
-    try {
-      const { verificationToken } = req.params;
+      const userInfoResposne = await getUserInfoFromFacebook(accessToken);
 
-      const userToVerify = await userModel.findByVerificationToken(
-        verificationToken,
-      );
+      const { email, id, name } = userInfoResposne;
 
-      if (!userToVerify) {
-        return console.log('test');
+      const userEmail = await userModel.findOne({ email });
+
+      if (userEmail) {
+        return res
+          .status(409)
+          .send({ message: 'User with such email already exists' });
       }
 
-      await userModel.verifyUser(userToVerify._id);
-      // res.redirect('Login_page') ;
-      return res.status(200).send('Your mail successfully verified');
+      const user = await userModel.initUserFromFacebook(email, name, id);
+
+      const newToken = await creatToken(user._id);
+
+      user.token = newToken;
+      user.status = 'Verified';
+
+      await user.save();
+
+      return res.status(201).json({
+        token: newToken,
+        user,
+      });
     } catch (error) {
-      res.status(500).send('Server error');
+      return res.status(500).send('Server error');
     }
   }
 

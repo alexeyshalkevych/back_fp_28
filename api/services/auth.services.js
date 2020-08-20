@@ -8,7 +8,7 @@ exports.creatToken = async id => {
   return jwt.sign({ id }, SECRET, { expiresIn: '24h' });
 };
 
-exports.getUserInfoFromGoogle = async token => {
+exports.getUserInfoFromGoogle = async accessToken => {
   const { data } = await axios.get(
     'https://openidconnect.googleapis.com/v1/userinfo',
     {
@@ -17,6 +17,19 @@ exports.getUserInfoFromGoogle = async token => {
       },
     },
   );
+
+  return data;
+};
+
+exports.getUserInfoFromFacebook = async accessToken => {
+  const { data } = await axios.get('https://graph.facebook.com/me', {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+    params: {
+      fields: ['id', 'email', 'name'].join(','),
+    },
+  });
 
   return data;
 };

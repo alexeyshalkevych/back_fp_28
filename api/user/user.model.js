@@ -40,6 +40,22 @@ userSchema.static('initUserFromGoogle', async function (email, name, googleId) {
   });
 });
 
+userSchema.static('initUserFromFacebook', async function (
+  email,
+  name,
+  facebookId,
+) {
+  const user = await this.findOne({ facebookId });
+
+  if (user) return user;
+
+  return new this({
+    email,
+    name: name.replace(/\s/gim, '_').toLowerCase(),
+    facebookId,
+  });
+});
+
 userSchema.static('findByVerificationToken', async function (
   verificationToken,
 ) {
