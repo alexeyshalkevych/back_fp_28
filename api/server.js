@@ -32,7 +32,15 @@ exports.AuthServer = class {
 
   initMiddleware() {
     this.app.use(express.json());
-    this.app.use(cors({ origin: 'http://localhost:3000' }));
+    this.app.use(
+      cors({
+        origin: [
+          'http://localhost:3000',
+          'https://alexeyshalkevych.github.io',
+          'https://alexeyshalkevych.github.io/test-project-auth/',
+        ],
+      }),
+    );
   }
 
   initRoutes() {

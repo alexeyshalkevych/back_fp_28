@@ -90,14 +90,6 @@ class AuthController {
 
       const { email, sub, name } = userInfoResposne;
 
-      const userEmail = await userModel.findOne({ email });
-
-      if (userEmail) {
-        return res
-          .status(409)
-          .send({ message: 'User with such email already exists' });
-      }
-
       const user = await userModel.initUserFromGoogle(email, name, sub);
 
       const newToken = await creatToken(user._id);
@@ -123,14 +115,6 @@ class AuthController {
       const userInfoResposne = await getUserInfoFromFacebook(accessToken);
 
       const { email, id, name } = userInfoResposne;
-
-      const userEmail = await userModel.findOne({ email });
-
-      if (userEmail) {
-        return res
-          .status(409)
-          .send({ message: 'User with such email already exists' });
-      }
 
       const user = await userModel.initUserFromFacebook(email, name, id);
 
