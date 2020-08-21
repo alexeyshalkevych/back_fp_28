@@ -1,23 +1,17 @@
 const transactionModel = require("./DataModel");
 const userModel = require("./userMod");
-const {
-    use
-} = require("./route");
 
 async function getTransaction(req, res, next) {
     try {
         const {
-            id
+            userId
         } = req.body;
         const user = await transactionModel
             .find({
-                userOwner: id,
+                userOwner: userId,
             })
             .exec();
-        // const lastUser = user[user.length - 1]
-        // console.log(user[user.length - 1]);
-        // const b = totalBalance(lastUser);
-        // console.log(b);
+
         res.status(200).send(user);
     } catch (error) {
         console.log(error);
@@ -28,7 +22,7 @@ async function postTransaction(req, res, next) {
     try {
         const {
             date,
-            id,
+            userId,
             type,
             category,
             sum,
@@ -38,7 +32,7 @@ async function postTransaction(req, res, next) {
 
         const user = await transactionModel
             .find({
-                userOwner: id,
+                userOwner: userId,
             })
             .exec();
         const lastUser = user[user.length - 1]
@@ -51,13 +45,13 @@ async function postTransaction(req, res, next) {
             sum,
             comment,
             balance: balance,
-            userOwner: id,
+            userOwner: userId,
         };
 
         const newTransaction = await transactionModel.create(transaction);
 
         const updatedUser = await userModel.findByIdAndUpdate(
-            id, {
+            userId, {
                 $push: {
                     transaction: newTransaction._id,
                 },
@@ -77,15 +71,8 @@ async function deleteTransaction(req, res, next) {
         const {
             transactionId,
             userId,
-
         } = req.body;
-        // transactionModel.ensureIndexes({
-        //     _id: -1
-        // })
-        // const prev = await transactionModel.find({
-        //     _id: {$lt}
-        // })
-        // console.log(prev);
+
         const removedTransaction = await transactionModel.findByIdAndDelete(
             transactionId
         );
@@ -103,7 +90,7 @@ async function deleteTransaction(req, res, next) {
                 }
             )
             .populate("transactionModel");
-        UpdateBalance(transactionId)
+        UpdateBalance(userId)
         return res.status(204).send(updatedUser);
     } catch (error) {
         next(error);
@@ -113,15 +100,17 @@ async function deleteTransaction(req, res, next) {
 async function updateTransaction(req, res, next) {
     try {
         const {
-            transactionId
-        } = req.params;
+            transactionId,
+            userId
+        } = req.body;
+
         const {
             date,
             type,
             category,
             sum,
             comment,
-            balance
+
         } = req.body;
         const newTransaction = {
             date,
@@ -129,52 +118,29 @@ async function updateTransaction(req, res, next) {
             category,
             sum,
             comment,
-            balance,
+
         };
-        const transactionUpdate = transactionModel.findByIdAndUpdate({
+        const transactionUpdate = await transactionModel.findByIdAndUpdate({
                 _id: transactionId,
             },
             newTransaction
         );
+        await UpdateBalance(userId)
 
-        res.status(200).send(transactionUpdate);
+        res.status(200).send("transaction updated");
     } catch (error) {
         console.log("Error", error);
     }
 }
 
-// function resultBalance(req) {
-//     const {
-//         type,
-//         balance,
-//         sum
-//     } = req.body;
-//     const total = 0;
-//     switch (type) {
-//         case "+":
-//             const result = balance + sum;
-
-//             return result;
-
-//         case "-":
-//             const resu = balance - sum;
-
-//             return resu;
-
-//         default:
-//             return console.log("not type");
-//     }
-// }
 
 function balanceLastTransaction(lastTransaction, type, sum) {
-    console.log(lastTransaction);
+
     switch (type) {
         case "+":
             if (lastTransaction == undefined) {
                 return +sum
             }
-            console.log(lastTransaction.balance);
-
             return (lastTransaction.balance += sum);
         case "-":
             if (lastTransaction.balance === undefined) {
@@ -186,37 +152,61 @@ function balanceLastTransaction(lastTransaction, type, sum) {
     }
 }
 
-async function UpdateBalance(id) {
-    let total = 0;
-    console.log(total);
+async function UpdateBalance(userId) {
+
     try {
-        // const {
-        //     id
-        // } = req.body;
         const user = await transactionModel
             .find({
-                userOwner: id,
+                userOwner: userId,
             })
             .exec();
-        console.log(user);
-        user.map((el) => {
-            switch (el.type) {
-                case "+":
-                    return (el.balance += el.sum);
-                case "-":
-                    return (el.balance -= el.sum);
-                default:
-                    return console.log("not type");
+
+        user.map(async (el) => {
+            const prev = user.indexOf(el)
+
+            if (prev === 0) {
+                switch (el.type) {
+                    case "+":
+                        el.balance = 0 + el.sum
+
+                        const updateEl = await transactionModel.findByIdAndUpdate(el._id, {
+                            balance: el.balance
+                        })
+
+                        return
+                    case "-":
+                        el.balance = 0 - el.sum
+                        const updateE = await transactionModel.findByIdAndUpdate(el._id, {
+                            balance: el.balance
+                        })
+                        return
+                    default:
+                        return console.log("not type");
+                }
+
+            } else {
+                switch (el.type) {
+                    case "+":
+                        user[prev].balance = user[prev - 1].balance += el.sum
+                        const updateEl1 = await transactionModel.findByIdAndUpdate(el._id, {
+                            balance: el.balance
+                        })
+                        return
+                    case "-":
+                        user[prev].balance = user[prev - 1].balance -= el.sum
+                        const updateEl2 = await transactionModel.findByIdAndUpdate(el._id, {
+                            balance: el.balance
+                        })
+                        return
+                    default:
+                        return console.log("not type");
+                }
             }
-
         });
-
     } catch (error) {
         console.log(error);
     }
 }
-
-
 
 module.exports = {
     getTransaction,

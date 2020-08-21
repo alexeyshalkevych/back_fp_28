@@ -3,7 +3,6 @@ const {
     getTransaction,
     postTransaction,
     deleteTransaction,
-    totalBalance,
     updateTransaction
 } = require("./DataControler");
 

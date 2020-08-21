@@ -25,7 +25,7 @@ const DataShema = new Schema({
     },
     balance: {
         type: Number,
-        // required: true,
+        required: false,
     },
     userOwner: {
         type: Schema.Types.ObjectId,
