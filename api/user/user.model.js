@@ -7,6 +7,14 @@ const userSchema = new Schema({
   password: { type: String, required: false },
   name: { type: String, required: true, unique: true },
   token: { type: String, required: false },
+  transaction: [
+    {
+      type: {
+        type: Schema.Types.ObjectId,
+        ref: 'transaction',
+      },
+    },
+  ],
   status: {
     type: String,
     required: true,
@@ -76,7 +84,6 @@ userSchema.static('verifyUser', async function (id) {
     },
   );
 });
-
 
 const userModel = mongoose.model('User', userSchema);
 module.exports = userModel;

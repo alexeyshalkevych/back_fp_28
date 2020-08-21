@@ -36,6 +36,7 @@ exports.AuthServer = class {
       cors({
         origin: [
           'http://localhost:3000',
+          'http://localhost:300',
           'https://alexeyshalkevych.github.io',
           'https://alexeyshalkevych.github.io/test-project-auth/',
         ],
