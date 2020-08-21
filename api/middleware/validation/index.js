@@ -1,5 +1,3 @@
-
-
 function userValidation (req, res, next) {
     const { email, password, name } = req.body;
     const emailValid = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
