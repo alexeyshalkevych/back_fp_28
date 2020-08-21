@@ -74,8 +74,9 @@ class AuthController {
       });
       res.status(200).json({
         email: userWithToken.email,
-        subscription: userWithToken.subscription,
+        name: userWithToken.name,
         token: newToken,
+        transactions: userWithToken.transactions
       });
     } catch (error) {
       res.status(500).send('Server error');
@@ -86,9 +87,9 @@ class AuthController {
     try {
       const { accessToken } = req.body;
 
-      const userInfoResposne = await getUserInfoFromGoogle(accessToken);
+      const userInfoResponse = await getUserInfoFromGoogle(accessToken);
 
-      const { email, sub, name } = userInfoResposne;
+      const { email, sub, name } = userInfoResponse;
 
       const user = await userModel.initUserFromGoogle(email, name, sub);
 
@@ -114,7 +115,7 @@ class AuthController {
 
       const userInfoResposne = await getUserInfoFromFacebook(accessToken);
 
-      const { email, id, name } = userInfoResposne;
+      const { email, id, name } = userInfoResponse;
 
       const user = await userModel.initUserFromFacebook(email, name, id);
 

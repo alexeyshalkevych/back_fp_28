@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const { Schema } = require('mongoose');
-// const { sault } = require('../config');
+
 
 const userSchema = new Schema({
   email: { type: String, required: true, unique: true },
