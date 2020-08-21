@@ -77,17 +77,6 @@ userSchema.static('verifyUser', async function (id) {
   );
 });
 
-// userSchema.pre("save", async function(next) {
-//   if (!this.isNew) {
-//     return next();
-//   }
-
-//   if (this.password) {
-//     this.password = await bcrypt.hash(this.password, sault);
-//   }
-
-//   return next();
-// });
 
 const userModel = mongoose.model('User', userSchema);
 module.exports = userModel;
