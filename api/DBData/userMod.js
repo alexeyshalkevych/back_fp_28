@@ -43,13 +43,11 @@ const userSchema = new Schema({
         required: false
     },
     transaction: [{
-        type: {
-            type: Schema.Types.ObjectId,
-            ref: 'transaction'
-        },
-
+        type: Schema.Types.ObjectId,
+        ref: 'transaction'
     }],
 });
+
 userSchema.static('updateUser', async function (id, updateParams) {
     const user = await this.findById(id);
     if (!user) throw new Error('User not found');

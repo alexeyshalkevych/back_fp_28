@@ -2,10 +2,10 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema
 
 const DataShema = new Schema({
-    // Transaction: {
-    //     type: String,
-    //     required: true,
-    // },
+    date: {
+        type: String,
+        required: true,
+    },
     type: {
         type: String,
         required: true,
@@ -25,7 +25,7 @@ const DataShema = new Schema({
     },
     balance: {
         type: Number,
-        required: true,
+        // required: true,
     },
     userOwner: {
         type: Schema.Types.ObjectId,
