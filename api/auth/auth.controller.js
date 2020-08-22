@@ -42,15 +42,12 @@ class AuthController {
       await userModel.updateUser(user._id, { verificationToken });
       await SendVerificationMail(verificationToken, user.email);
 
-      // return res.status(201).send({
-      //   email: user.email,
-      //   name: user.name,
-      //   // status: user.status,
-      //   // verificationToken: user.verificationToken,
-      // });
-      return res.status(201).send({ message: 'TEST' });
-
-
+      return res.status(201).send({
+        email: user.email,
+        name: user.name,
+        status: user.status,
+        verificationToken: user.verificationToken,
+      });
     } catch (error) {
       res.status(500).send('Server error');
     }
@@ -78,9 +75,9 @@ class AuthController {
       res.status(200).json({
         email: userWithToken.email,
         name: userWithToken.name,
-        id:userWithToken._id,
+        id: userWithToken._id,
         token: newToken,
-        transactions: userWithToken.transactions
+        transactions: userWithToken.transactions,
       });
     } catch (error) {
       res.status(500).send('Server error');
@@ -107,9 +104,9 @@ class AuthController {
       return res.status(201).json({
         email: user.email,
         name: user.name,
-        id:user._id,
+        id: user._id,
         token: newToken,
-        transactions: user.transactions
+        transactions: user.transactions,
       });
     } catch (error) {
       return res.status(500).send('Server error');
@@ -136,9 +133,9 @@ class AuthController {
       return res.status(201).json({
         email: user.email,
         name: user.name,
-        id:user._id,
+        id: user._id,
         token: newToken,
-        transactions: user.transactions
+        transactions: user.transactions,
       });
     } catch (error) {
       return res.status(500).send('Server error');
@@ -165,7 +162,7 @@ class AuthController {
       );
 
       if (!userToVerify) {
-        return console.log('test');//змінити на throw Error
+        return console.log('test'); //змінити на throw Error
       }
 
       await userModel.verifyUser(userToVerify._id);
