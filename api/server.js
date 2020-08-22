@@ -1,10 +1,13 @@
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '.env') });
+require('dotenv').config({
+  path: path.join(__dirname, '.env')
+});
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const { PORT, DB_URI } = process.env;
 const { authRouter } = require('./auth/auth.router');
+const {transactionRouter} = require("./DBData/route")
 
 exports.AuthServer = class {
   constructor() {
@@ -46,6 +49,7 @@ exports.AuthServer = class {
 
   initRoutes() {
     this.app.use('/auth', authRouter);
+    this.app.use('/', transactionRouter);
   }
 
   initErrorHandler() {
@@ -57,9 +61,9 @@ exports.AuthServer = class {
 
   startListener() {
     this.app.listen(PORT, err =>
-      err
-        ? console.error(err)
-        : console.info(`Server has been started on ${PORT} port`),
+      err ?
+      console.error(err) :
+      console.info(`Server has been started on ${PORT} port`),
     );
   }
 };
