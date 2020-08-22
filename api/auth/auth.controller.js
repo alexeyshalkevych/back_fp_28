@@ -45,6 +45,7 @@ class AuthController {
       return res.status(201).send({
         email: user.email,
         name: user.name,
+        id: user._id,
         status: user.status,
         verificationToken: user.verificationToken,
       });
