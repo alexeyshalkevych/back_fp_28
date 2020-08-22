@@ -13,7 +13,7 @@ exports.SendVerificationMail = async (verificationToken, email) => {
     from: 'mih.s.sidorenko@gmail.com',  
     subject: 'Verification',
     text: 'Verify your email',
-    html: `<a href="http://localhost:${PORT}/auth/verify/${verificationToken}">Confirm your account</a>`,
+    html: `<a href="http://localhost:${PORT}/auth/verify/${verificationToken}">Confirm your account</a>`, //посилання на хіроку де лежить бекенд
   };
   return await sgMail.send(msg)
 };

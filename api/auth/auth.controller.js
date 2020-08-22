@@ -155,11 +155,11 @@ class AuthController {
       );
 
       if (!userToVerify) {
-        return console.log('test');
+        return console.log('test');//змінити на throw Error
       }
 
       await userModel.verifyUser(userToVerify._id);
-      // res.redirect('Login_page') ;
+      // res.redirect('Main page') ;
       return res.status(200).send('Your mail successfully verified');
     } catch (error) {
       res.status(500).send('Server error');
