@@ -75,6 +75,7 @@ class AuthController {
       res.status(200).json({
         email: userWithToken.email,
         name: userWithToken.name,
+        id:userWithToken._id,
         token: newToken,
         transactions: userWithToken.transactions
       });
@@ -101,8 +102,11 @@ class AuthController {
       await user.save();
 
       return res.status(201).json({
+        email: userWithToken.email,
+        name: userWithToken.name,
+        id:userWithToken._id,
         token: newToken,
-        user,
+        transactions: userWithToken.transactions
       });
     } catch (error) {
       return res.status(500).send('Server error');
@@ -127,8 +131,11 @@ class AuthController {
       await user.save();
 
       return res.status(201).json({
+        email: userWithToken.email,
+        name: userWithToken.name,
+        id:userWithToken._id,
         token: newToken,
-        user,
+        transactions: userWithToken.transactions
       });
     } catch (error) {
       return res.status(500).send('Server error');
