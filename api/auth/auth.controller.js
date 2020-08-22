@@ -45,8 +45,8 @@ class AuthController {
       return res.status(201).send({
         email: user.email,
         name: user.name,
-        status: user.status,
-        verificationToken: user.verificationToken,
+        // status: user.status,
+        // verificationToken: user.verificationToken,
       });
     } catch (error) {
       res.status(500).send('Server error');
