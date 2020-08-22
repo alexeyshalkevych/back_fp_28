@@ -42,12 +42,15 @@ class AuthController {
       await userModel.updateUser(user._id, { verificationToken });
       await SendVerificationMail(verificationToken, user.email);
 
-      return res.status(201).send({
-        email: user.email,
-        name: user.name,
-        // status: user.status,
-        // verificationToken: user.verificationToken,
-      });
+      // return res.status(201).send({
+      //   email: user.email,
+      //   name: user.name,
+      //   // status: user.status,
+      //   // verificationToken: user.verificationToken,
+      // });
+      return res.status(201).send({ message: 'TEST' });
+
+
     } catch (error) {
       res.status(500).send('Server error');
     }
@@ -102,11 +105,11 @@ class AuthController {
       await user.save();
 
       return res.status(201).json({
-        email: userWithToken.email,
-        name: userWithToken.name,
-        id:userWithToken._id,
+        email: user.email,
+        name: user.name,
+        id:user._id,
         token: newToken,
-        transactions: userWithToken.transactions
+        transactions: user.transactions
       });
     } catch (error) {
       return res.status(500).send('Server error');
@@ -131,11 +134,11 @@ class AuthController {
       await user.save();
 
       return res.status(201).json({
-        email: userWithToken.email,
-        name: userWithToken.name,
-        id:userWithToken._id,
+        email: user.email,
+        name: user.name,
+        id:user._id,
         token: newToken,
-        transactions: userWithToken.transactions
+        transactions: user.transactions
       });
     } catch (error) {
       return res.status(500).send('Server error');
