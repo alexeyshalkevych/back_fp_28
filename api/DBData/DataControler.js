@@ -1,217 +1,297 @@
-const transactionModel = require("./DataModel");
-const userModel = require("../user/user.model");
+const transactionModel = require('./DataModel');
+const userModel = require('../user/user.model');
 
 async function getTransaction(req, res, next) {
-    try {
-        const {
-            userId
-        } = req.body;
-        const user = await transactionModel
-            .find({
-                userOwner: userId,
-            })
-            .exec();
+  try {
+    const { _id } = req.user;
 
-        res.status(200).send(user);
-    } catch (error) {
+    const user = await transactionModel
+      .find({
+        userOwner: _id,
+      })
+      .exec();
+
+    res.status(200).send(user);
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+async function getTransactionForStatistic(req, res) {
+    try {
+        let { type, month, year } = req.params;
+        const dateNow = new Date();
+        if (month === undefined){
+            month = dateNow.getMonth() + 1;
+        };
+        if (year === undefined){
+            year = dateNow.getFullYear();
+        };
+        if (type === undefined){
+            type = "-"
+        }
+        const { _id } = req.user;
+    
+        const user = await transactionModel
+          .find({
+            userOwner: _id,
+          })
+          .exec();
+
+        const filterUser = filterBalance(type, month, year, user)
+    
+        res.status(200).send(filterUser);
+      } catch (error) {
         console.log(error);
-    }
+      }
 }
 
 async function postTransaction(req, res, next) {
-    try {
-        const {
-            date,
-            userId,
-            type,
-            category,
-            sum,
-            comment,
+  try {
+    const { date, type, category, sum, comment } = req.body;
+    const { _id } = req.user;
 
-        } = req.body;
+    const user = await transactionModel
+      .find({
+        userOwner: _id,
+      })
+      .exec();
+    const lastUser = user[user.length - 1];
+    const balance = balanceLastTransaction(lastUser, type, sum);
 
-        const user = await transactionModel
-            .find({
-                userOwner: userId,
-            })
-            .exec();
-        const lastUser = user[user.length - 1]
-        const balance = balanceLastTransaction(lastUser, type, sum);
+    const transaction = {
+      date,
+      type,
+      category,
+      sum,
+      comment,
+      balance: balance,
+      userOwner: _id,
+    };
 
-        const transaction = {
-            date,
-            type,
-            category,
-            sum,
-            comment,
-            balance: balance,
-            userOwner: userId,
-        };
+    const newTransaction = await transactionModel.create(transaction);
 
-        const newTransaction = await transactionModel.create(transaction);
+    const updatedUser = await userModel.findByIdAndUpdate(
+      _id,
+      {
+        $push: {
+          transaction: {
+            _id: newTransaction._id,
+          },
+        },
+      },
+      {
+        new: true,
+      },
+    );
 
-        const updatedUser = await userModel.findByIdAndUpdate(
-            userId, {
-                $push: {
-                    transaction: newTransaction._id,
-                },
-            }, {
-                new: true,
-            }
-        );
-
-        res.status(201).json(updatedUser);
-    } catch (error) {
-        next(error);
-    }
+    res.status(201).json(updatedUser);
+  } catch (error) {
+    next(error);
+  }
 }
 
 async function deleteTransaction(req, res, next) {
-    try {
-        const {
-            transactionId,
-            userId,
-        } = req.body;
+  try {
+    const { transactionId } = req.body;
+    const { _id } = req.user;
 
-        const removedTransaction = await transactionModel.findByIdAndDelete(
-            transactionId
-        );
-        if (!removedTransaction) {
-            return res.status(404).send();
-        }
-        const updatedUser = await userModel
-            .findByIdAndUpdate(
-                userId, {
-                    $pull: {
-                        transaction: transactionId,
-                    },
-                }, {
-                    new: true,
-                }
-            )
-            .populate("transactionModel");
-        UpdateBalance(userId)
-        return res.status(204).send(updatedUser);
-    } catch (error) {
-        next(error);
+    const removedTransaction = await transactionModel.findByIdAndDelete(
+      transactionId,
+    );
+
+    if (!removedTransaction) {
+      return res.status(404).send();
     }
+    const updatedUser = await userModel.findByIdAndUpdate(
+      _id,
+      {
+        $pull: {
+          transaction: {
+            _id: transactionId,
+          },
+        },
+      },
+      {
+        new: true,
+      },
+    );
+    UpdateBalance(_id);
+    return res.status(204).send(updatedUser);
+  } catch (error) {
+    next(error);
+  }
 }
 
 async function updateTransaction(req, res, next) {
-    try {
-        const {
-            transactionId,
-            userId
-        } = req.body;
+  try {
+    const { transactionId, userId } = req.body;
 
-        const {
-            date,
-            type,
-            category,
-            sum,
-            comment,
+    const { date, type, category, sum, comment } = req.body;
+    const newTransaction = {
+      date,
+      type,
+      category,
+      sum,
+      comment,
+    };
+    const transactionUpdate = await transactionModel.findByIdAndUpdate(
+      {
+        _id: transactionId,
+      },
+      newTransaction,
+    );
+    await UpdateBalance(userId);
 
-        } = req.body;
-        const newTransaction = {
-            date,
-            type,
-            category,
-            sum,
-            comment,
-
-        };
-        const transactionUpdate = await transactionModel.findByIdAndUpdate({
-                _id: transactionId,
-            },
-            newTransaction
-        );
-        await UpdateBalance(userId)
-
-        res.status(200).send("transaction updated");
-    } catch (error) {
-        console.log("Error", error);
-    }
+    res.status(200).send('transaction updated');
+  } catch (error) {
+    console.log('Error', error);
+  }
 }
 
-
 function balanceLastTransaction(lastTransaction, type, sum) {
-
-    switch (type) {
-        case "+":
-            if (lastTransaction == undefined) {
-                return +sum
-            }
-            return (lastTransaction.balance += sum);
-        case "-":
-            if (lastTransaction.balance === undefined) {
-                return -sum
-            }
-            return (lastTransaction.balance -= sum);
-        default:
-            return console.log("not type");
-    }
+  switch (type) {
+    case '+':
+      if (lastTransaction == undefined) {
+        return +sum;
+      }
+      return (lastTransaction.balance += sum);
+    case '-':
+      if (lastTransaction.balance === undefined) {
+        return -sum;
+      }
+      return (lastTransaction.balance -= sum);
+    default:
+      return console.log('not type');
+  }
 }
 
 async function UpdateBalance(userId) {
+  try {
+    const user = await transactionModel
+      .find({
+        userOwner: userId,
+      })
+      .exec();
 
-    try {
-        const user = await transactionModel
-            .find({
-                userOwner: userId,
-            })
-            .exec();
+    user.map(async el => {
+      const prev = user.indexOf(el);
 
-        user.map(async (el) => {
-            const prev = user.indexOf(el)
+      if (prev === 0) {
+        switch (el.type) {
+          case '+':
+            el.balance = 0 + el.sum;
 
-            if (prev === 0) {
-                switch (el.type) {
-                    case "+":
-                        el.balance = 0 + el.sum
+            const updateEl = await transactionModel.findByIdAndUpdate(el._id, {
+              balance: el.balance,
+            });
 
-                        const updateEl = await transactionModel.findByIdAndUpdate(el._id, {
-                            balance: el.balance
-                        })
+            return;
+          case '-':
+            el.balance = 0 - el.sum;
+            const updateE = await transactionModel.findByIdAndUpdate(el._id, {
+              balance: el.balance,
+            });
+            return;
+          default:
+            return console.log('not type');
+        }
+      } else {
+        switch (el.type) {
+          case '+':
+            user[prev].balance = user[prev - 1].balance += el.sum;
+            const updateEl1 = await transactionModel.findByIdAndUpdate(el._id, {
+              balance: el.balance,
+            });
+            return;
+          case '-':
+            user[prev].balance = user[prev - 1].balance -= el.sum;
+            const updateEl2 = await transactionModel.findByIdAndUpdate(el._id, {
+              balance: el.balance,
+            });
+            return;
+          default:
+            return console.log('not type');
+        }
+      }
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}
 
-                        return
-                    case "-":
-                        el.balance = 0 - el.sum
-                        const updateE = await transactionModel.findByIdAndUpdate(el._id, {
-                            balance: el.balance
-                        })
-                        return
-                    default:
-                        return console.log("not type");
-                }
-
-            } else {
-                switch (el.type) {
-                    case "+":
-                        user[prev].balance = user[prev - 1].balance += el.sum
-                        const updateEl1 = await transactionModel.findByIdAndUpdate(el._id, {
-                            balance: el.balance
-                        })
-                        return
-                    case "-":
-                        user[prev].balance = user[prev - 1].balance -= el.sum
-                        const updateEl2 = await transactionModel.findByIdAndUpdate(el._id, {
-                            balance: el.balance
-                        })
-                        return
-                    default:
-                        return console.log("not type");
-                }
+function filterBalance(globalType, month, year, arr){
+    function unique(arr) {
+        let result = [];
+        for (let str of arr) {
+            if (!result.includes(str)) {
+                result.push(str);
             }
-        });
-    } catch (error) {
-        console.log(error);
-    }
+        }
+        return result;
+    };
+    function getMonth (date){
+        const month = Number(date.slice(3,5));
+        return month
+    };
+    function getYear (date){
+        const year = Number(date.slice(6,10));
+        return year
+    };
+    function getBalance (type, value) {
+        const ArrCategory = arr.filter(el => 
+            el[type] === value &&
+            getMonth(el.date) === month &&
+            getYear(el.date) === year
+        );
+        return ArrCategory.reduce((acc, val) => {
+            if(type === "category") {
+                if(type === globalType) {
+                    if(month === getMonth(val["date"]) && year === getYear(val["date"])){
+                        return acc + val['sum']
+                    }
+                } else if("all" === globalType){
+                    if(month === getMonth(val["date"]) && year === getYear(val["date"])){
+                        return acc + val['sum']
+                    }
+                };
+            };
+            return acc + val['sum']
+        }, 0)
+    };
+    const category = arr.reduce((acc, val) => {
+        if(val.type === globalType) {
+            if(month === getMonth(val["date"]) && year === getYear(val["date"])){
+                acc.push(val.category)
+            }
+        } else if("all" === globalType){
+            if(month === getMonth(val["date"]) && year === getYear(val["date"])){
+                acc.push(val.category)
+            }
+        };
+        return unique(acc)
+    },[]);
+    const arrayCategory = category.reduce((acc, el) => {
+    acc.push({
+        "category": el,
+        "sum": getBalance("category", el),
+    });
+    return acc
+    },[]);
+    const profit = getBalance("type", "+");
+    const exes = getBalance("type", "-");
+    const finalObject = {
+        "arr": arrayCategory,
+        "income": profit,
+        "expenses": exes,
+    };
+    return finalObject
 }
 
 module.exports = {
-    getTransaction,
-    postTransaction,
-    deleteTransaction,
-    updateTransaction,
-
+  getTransaction,
+  postTransaction,
+  deleteTransaction,
+  updateTransaction,
+  getTransactionForStatistic
 };
