@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema
+const Schema = mongoose.Schema;
 
 const DataShema = new Schema({
     date: {
@@ -37,4 +37,4 @@ const DataShema = new Schema({
 
 const transactionModel = mongoose.model('TransactionData', DataShema);
 
-module.exports = transactionModel
+module.exports = transactionModel;

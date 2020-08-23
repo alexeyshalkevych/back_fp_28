@@ -1,16 +1,17 @@
-const express = require("express");
+const express = require('express');
 const {
-    getTransaction,
-    postTransaction,
-    deleteTransaction,
-    updateTransaction
-} = require("./DataControler");
+  getTransaction,
+  postTransaction,
+  deleteTransaction,
+  updateTransaction,
+} = require('./DataControler');
+const { tokenMiddleware } = require('../middleware/auth.middleware');
 
-const route = express.Router()
+const route = express.Router();
 
-route.get('/get', getTransaction)
-route.post('/post', postTransaction)
-route.delete('/delete', deleteTransaction)
-route.patch('/update', updateTransaction)
+route.get('/get', tokenMiddleware, getTransaction);
+route.post('/post', tokenMiddleware, postTransaction);
+route.delete('/delete', tokenMiddleware, deleteTransaction);
+route.patch('/update', updateTransaction);
 
-module.exports.transactionRouter = route
+module.exports.transactionRouter = route;
