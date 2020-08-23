@@ -2,21 +2,6 @@ const transactionModel = require('./DataModel');
 const userModel = require('../user/user.model');
 
 async function getTransaction(req, res, next) {
-<<<<<<< HEAD
-    try {
-        const {
-            userId
-        } = req.body;
-        const user = await transactionModel
-            .find({
-                userOwner: userId,
-            })
-            .exec();
-        res.status(200).send(user, filterBalance(user));
-    } catch (error) {
-        console.log(error);
-    }
-=======
   try {
     const { _id } = req.user;
 
@@ -30,7 +15,6 @@ async function getTransaction(req, res, next) {
   } catch (error) {
     console.log(error);
   }
->>>>>>> 0aa5c72c3d91898f1e25389e81225eb27dfea47b
 }
 
 async function postTransaction(req, res, next) {
@@ -79,35 +63,6 @@ async function postTransaction(req, res, next) {
 }
 
 async function deleteTransaction(req, res, next) {
-<<<<<<< HEAD
-    try {
-        const {
-            transactionId,
-            userId,
-        } = req.body;
-
-        const removedTransaction = await transactionModel.findByIdAndDelete(
-            transactionId
-        );
-        if (!removedTransaction) {
-            return res.status(404).send();
-        }
-        const updatedUser = await userModel
-            .findByIdAndUpdate(
-                userId, {
-                    $pull: {
-                        transaction: transactionId,
-                    },
-                }, {
-                    new: true,
-                }
-            )
-            .populate("transactionData");
-        UpdateBalance(userId)
-        return res.status(204).send(updatedUser);
-    } catch (error) {
-        next(error);
-=======
   try {
     const { transactionId } = req.body;
     const { _id } = req.user;
@@ -118,7 +73,6 @@ async function deleteTransaction(req, res, next) {
 
     if (!removedTransaction) {
       return res.status(404).send();
->>>>>>> 0aa5c72c3d91898f1e25389e81225eb27dfea47b
     }
     const updatedUser = await userModel.findByIdAndUpdate(
       _id,
@@ -291,16 +245,8 @@ function filterBalance(globalType, arr){
 }
 
 module.exports = {
-<<<<<<< HEAD
-    getTransaction,
-    postTransaction,
-    deleteTransaction,
-    updateTransaction,
-};
-=======
   getTransaction,
   postTransaction,
   deleteTransaction,
   updateTransaction,
 };
->>>>>>> 0aa5c72c3d91898f1e25389e81225eb27dfea47b
