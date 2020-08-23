@@ -29,7 +29,7 @@ const DataShema = new Schema({
     },
     userOwner: {
         type: Schema.Types.ObjectId,
-        ref: 'userModel',
+        ref: 'User',
         required: true
     },
 
