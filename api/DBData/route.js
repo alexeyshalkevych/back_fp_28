@@ -12,6 +12,6 @@ const route = express.Router();
 route.get('/get', tokenMiddleware, getTransaction);
 route.post('/post', tokenMiddleware, postTransaction);
 route.delete('/delete', tokenMiddleware, deleteTransaction);
-route.patch('/update', updateTransaction);
+route.patch('/update', tokenMiddleware, updateTransaction);
 
 module.exports.transactionRouter = route;

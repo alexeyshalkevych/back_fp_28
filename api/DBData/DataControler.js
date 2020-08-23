@@ -96,25 +96,30 @@ async function deleteTransaction(req, res, next) {
 
 async function updateTransaction(req, res, next) {
   try {
-    const { transactionId, userId } = req.body;
+    const { _id } = req.user;
+    const { sum, comment, transactionId } = req.body;
 
-    const { date, type, category, sum, comment } = req.body;
+    const oldTransaction = await transactionModel.findOne({
+      _id: transactionId,
+    });
+
     const newTransaction = {
-      date,
-      type,
-      category,
-      sum,
-      comment,
+      sum: sum || oldTransaction.sum,
+      comment: comment || oldTransaction.comment,
     };
+
     const transactionUpdate = await transactionModel.findByIdAndUpdate(
       {
         _id: transactionId,
       },
       newTransaction,
+      {
+        new: true,
+      },
     );
-    await UpdateBalance(userId);
+    await UpdateBalance(_id);
 
-    res.status(200).send('transaction updated');
+    res.status(200).send(transactionUpdate);
   } catch (error) {
     console.log('Error', error);
   }
