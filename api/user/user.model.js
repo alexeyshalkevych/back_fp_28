@@ -11,7 +11,7 @@ const userSchema = new Schema({
     {
       type: {
         type: Schema.Types.ObjectId,
-        ref: 'transactionData',
+        ref: 'TransactionData',
       },
     },
   ],

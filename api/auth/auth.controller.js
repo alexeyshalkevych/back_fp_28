@@ -118,7 +118,7 @@ class AuthController {
     try {
       const { accessToken } = req.body;
 
-      const userInfoResposne = await getUserInfoFromFacebook(accessToken);
+      const userInfoResponse = await getUserInfoFromFacebook(accessToken);
 
       const { email, id, name } = userInfoResponse;
 

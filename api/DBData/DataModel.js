@@ -35,6 +35,6 @@ const DataShema = new Schema({
 
 });
 
-const transactionModel = mongoose.model('transactionData', DataShema);
+const transactionModel = mongoose.model('TransactionData', DataShema);
 
 module.exports = transactionModel

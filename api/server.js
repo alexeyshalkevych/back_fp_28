@@ -41,6 +41,8 @@ exports.AuthServer = class {
           'http://localhost:3000',
           'http://localhost:300',
           'https://wallet-fp-28.netlify.app/',
+          'https://wallet-fp-28.netlify.app/login',
+          'https://wallet-fp-28.netlify.app/register',
           'https://alexeyshalkevych.github.io',
           'http://finalproject2020.zzz.com.ua',
           'https://alexeyshalkevych.github.io/test-project-auth/',
