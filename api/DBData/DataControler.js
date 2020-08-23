@@ -11,8 +11,7 @@ async function getTransaction(req, res, next) {
                 userOwner: userId,
             })
             .exec();
-
-        res.status(200).send(user);
+        res.status(200).send(user, filterBalance(user));
     } catch (error) {
         console.log(error);
     }
@@ -89,7 +88,7 @@ async function deleteTransaction(req, res, next) {
                     new: true,
                 }
             )
-            .populate("transactionModel");
+            .populate("transactionData");
         UpdateBalance(userId)
         return res.status(204).send(updatedUser);
     } catch (error) {
@@ -208,10 +207,57 @@ async function UpdateBalance(userId) {
     }
 }
 
+function filterBalance(globalType, arr){
+    function unique(arr) {
+        let result = [];
+        for (let str of arr) {
+            if (!result.includes(str)) {
+                result.push(str);
+            };
+        };
+        return result;
+    };
+    function getBalance (type, value) {
+        const ArrCategory = arr.filter(el => el[type] === value);
+        return ArrCategory.reduce((acc, val) => {
+        if(type === "category") {
+            if(type === globalType) {
+                return acc + val['sum']
+            } else if("all" === globalType){
+                return acc + val['sum']
+            };
+        };
+        return acc + val['sum']
+        }, 0)
+    };
+    const category = arr.reduce((acc, val) => {
+        if(val.type === globalType) {
+            acc.push(val.category)
+        } else if("all" === globalType){
+            acc.push(val.category)
+        };
+        return unique(acc)
+    },[]);
+    const arrayCategory = category.reduce((acc, el) => {
+        acc.push({
+        "category": el,
+        "sum": getBalance("category", el),
+        });
+        return acc
+    },[]);
+    const profit = getBalance("type", "+");
+    const exes = getBalance("type", "-");
+    const finalObject = {
+        "arr": arrayCategory,
+        "income": profit,
+        "expenses": exes,
+    };
+    return finalObject
+}
+
 module.exports = {
     getTransaction,
     postTransaction,
     deleteTransaction,
     updateTransaction,
-
 };
