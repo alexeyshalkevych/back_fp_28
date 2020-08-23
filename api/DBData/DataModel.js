@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema
+const Schema = mongoose.Schema;
 
 const DataShema = new Schema({
     date: {
@@ -29,12 +29,12 @@ const DataShema = new Schema({
     },
     userOwner: {
         type: Schema.Types.ObjectId,
-        ref: 'userModel',
+        ref: 'User',
         required: true
     },
 
 });
 
-const transactionModel = mongoose.model('transactionData', DataShema);
+const transactionModel = mongoose.model('TransactionData', DataShema);
 
-module.exports = transactionModel
+module.exports = transactionModel;
