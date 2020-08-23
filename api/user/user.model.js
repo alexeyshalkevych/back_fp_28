@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const { Schema } = require('mongoose');
+const { number } = require('yargs');
 
 const userSchema = new Schema({
   email: { type: String, required: true, unique: true },
@@ -23,6 +24,7 @@ const userSchema = new Schema({
   verificationToken: { type: String, required: false },
   googleId: { type: String, required: false },
   facebookId: { type: String, required: false },
+  userBalance: {type: String, required: false}
 });
 userSchema.static('updateUser', async function (id, updateParams) {
   const user = await this.findById(id);
